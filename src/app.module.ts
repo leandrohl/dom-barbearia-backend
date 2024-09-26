@@ -7,9 +7,21 @@ import { ClientModule } from './client/client.module';
 import { ProductModule } from './product/product.module';
 import { ServiceModule } from './service/service.module';
 import { ProfileModule } from './profile/profile.module';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModuleOptions, TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRoot({
+      type: process.env.TYPEORM_CONNECTION,
+      host: process.env.TYPEORM_HOST,
+      port: process.env.TYPEORM_PORT,
+      username: process.env.TYPEORM_USERNAME,
+      database: process.env.TYPEORM_DATABASE,
+      entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+      synchronize: true,
+    } as TypeOrmModuleOptions),
     UsersModule,
     EmployeesModule,
     ClientModule,
