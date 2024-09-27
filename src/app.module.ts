@@ -9,6 +9,7 @@ import { ServiceModule } from './service/service.module';
 import { ProfileModule } from './profile/profile.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -19,8 +20,9 @@ import { TypeOrmModuleOptions, TypeOrmModule } from '@nestjs/typeorm';
       port: process.env.TYPEORM_PORT,
       username: process.env.TYPEORM_USERNAME,
       database: process.env.TYPEORM_DATABASE,
-      entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-      synchronize: true,
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: false,
+      migrationsRun: false,
     } as TypeOrmModuleOptions),
     UsersModule,
     EmployeesModule,
@@ -28,6 +30,7 @@ import { TypeOrmModuleOptions, TypeOrmModule } from '@nestjs/typeorm';
     ProductModule,
     ServiceModule,
     ProfileModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
