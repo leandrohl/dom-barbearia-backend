@@ -1,11 +1,4 @@
-import { Profile } from '../../profile/entities/profile.entity';
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  BeforeInsert,
-} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
 import { hashSync } from 'bcrypt';
 
 @Entity({ name: 'Usuario' })
@@ -22,11 +15,11 @@ export class User {
   @Column()
   senha: string;
 
-  @ManyToOne(() => Profile, (perfil) => perfil.usuarios)
-  perfil: Profile;
-
   @BeforeInsert()
   hashPassword() {
     this.senha = hashSync(this.senha, 10);
   }
+
+  @Column({ name: 'perfilId' })
+  perfil: number;
 }

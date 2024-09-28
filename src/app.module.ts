@@ -22,7 +22,6 @@ import { AuthModule } from './auth/auth.module';
       database: process.env.TYPEORM_DATABASE,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
-      migrationsRun: false,
     } as TypeOrmModuleOptions),
     UsersModule,
     EmployeesModule,

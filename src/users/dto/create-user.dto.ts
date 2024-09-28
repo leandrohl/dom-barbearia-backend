@@ -25,5 +25,5 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsInt()
   @IsPositive()
-  perfilId: number;
+  perfil: number;
 }
