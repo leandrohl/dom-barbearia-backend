@@ -24,12 +24,12 @@ export class UsersService {
     return this.usersRepository.findOneBy({ email });
   }
 
-  async remove(id: number): Promise<void> {
-    await this.usersRepository.delete(id);
+  async remove(id: number) {
+    return await this.usersRepository.delete(id);
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    return await this.usersRepository.save(updateUserDto);
+    return await this.usersRepository.update(id, updateUserDto);
   }
 
   async create(createUserDto: CreateUserDto) {

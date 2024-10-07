@@ -26,10 +26,10 @@ export class ProfileService {
   }
 
   async update(id: number, updateProfileDto: UpdateProfileDto) {
-    return await this.profileRepository.save(updateProfileDto);
+    return await this.profileRepository.update(id, updateProfileDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} profile`;
+  async remove(id: number) {
+    return await this.profileRepository.delete(id);
   }
 }
