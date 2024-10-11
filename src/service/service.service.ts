@@ -12,23 +12,24 @@ export class ServiceService {
     private readonly serviceRepository: Repository<Service>,
   ) {}
 
-  create(createServiceDto: CreateServiceDto) {
-    return 'This action adds a new service';
+  async create(createServiceDto: CreateServiceDto) {
+    const product = this.serviceRepository.create(createServiceDto);
+    return await this.serviceRepository.save(product);
   }
 
-  findAll() {
-    return this.serviceRepository.find();
+  async findAll(): Promise<Service[]> {
+    return await this.serviceRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} service`;
+  async findOne(id: number): Promise<Service | null> {
+    return await this.serviceRepository.findOneBy({ id });
   }
 
-  update(id: number, updateServiceDto: UpdateServiceDto) {
-    return `This action updates a #${id} service`;
+  async update(id: number, updateServiceDto: UpdateServiceDto) {
+    return await this.serviceRepository.update(id, updateServiceDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} service`;
+  async remove(id: number) {
+    return await this.serviceRepository.delete(id);
   }
 }

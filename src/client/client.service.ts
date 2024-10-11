@@ -12,23 +12,24 @@ export class ClientService {
     private readonly clientRepository: Repository<Client>,
   ) {}
 
-  create(createClientDto: CreateClientDto) {
-    return 'This action adds a new client';
+  async create(createClientDto: CreateClientDto) {
+    const client = this.clientRepository.create(createClientDto);
+    return await this.clientRepository.save(client);
   }
 
-  findAll(): Promise<Client[]> {
-    return this.clientRepository.find();
+  async findAll(): Promise<Client[]> {
+    return await this.clientRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} client`;
+  async findOne(id: number): Promise<Client | null> {
+    return await this.clientRepository.findOneBy({ id });
   }
 
-  update(id: number, updateClientDto: UpdateClientDto) {
-    return `This action updates a #${id} client`;
+  async update(id: number, updateClientDto: UpdateClientDto) {
+    return await this.clientRepository.update(id, updateClientDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} client`;
+  async remove(id: number) {
+    return await this.clientRepository.delete(id);
   }
 }

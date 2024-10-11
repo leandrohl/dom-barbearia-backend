@@ -21,7 +21,7 @@ export class EmployeesService {
   }
 
   async update(id: number, updateEmployeeDto: UpdateEmployeeDto) {
-    return await this.employeeRepository.save(updateEmployeeDto);
+    return await this.employeeRepository.update(id, updateEmployeeDto);
   }
 
   async create(createEmployeeDto: CreateEmployeeDto) {
