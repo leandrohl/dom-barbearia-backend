@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsPositive } from 'class-validator';
+import { IsArray, IsNotEmpty, IsPositive } from 'class-validator';
 
 export class CreateServiceDto {
   @IsNotEmpty()
@@ -7,4 +7,7 @@ export class CreateServiceDto {
   @IsNotEmpty()
   @IsPositive()
   preco: number;
+
+  @IsArray()
+  funcionarios: number[];
 }

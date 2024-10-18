@@ -1,5 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
-import { Service } from '../../service/entities/service.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { ServiceEmployee } from '../../service/entities/service-employee.entity';
 
 @Entity({ name: 'Funcionario' })
 export class Employee {
@@ -24,6 +24,9 @@ export class Employee {
   @Column()
   ativo: boolean;
 
-  @ManyToMany(() => Service, (servico) => servico.funcionarios)
-  servicos: Service[];
+  @OneToMany(
+    () => ServiceEmployee,
+    (serviceEmployee) => serviceEmployee.funcionario,
+  )
+  serviceEmployee: ServiceEmployee[];
 }

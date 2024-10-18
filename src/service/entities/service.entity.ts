@@ -1,5 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
-import { Employee } from '../../employees/entities/employee.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { ServiceEmployee } from './service-employee.entity';
 
 @Entity({ name: 'Servico' })
 export class Service {
@@ -12,6 +12,9 @@ export class Service {
   @Column('float')
   preco: number;
 
-  @ManyToMany(() => Employee, (funcionario) => funcionario.servicos)
-  funcionarios: Employee[];
+  @OneToMany(
+    () => ServiceEmployee,
+    (serviceEmployee) => serviceEmployee.servico,
+  )
+  servicoFuncionario: ServiceEmployee[];
 }
