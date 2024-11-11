@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { ServiceEmployee } from '../../service/entities/service-employee.entity';
+import { OrderItem } from '../../command/entities/order-item.entity';
 
 @Entity({ name: 'Funcionario' })
 export class Employee {
@@ -29,4 +30,7 @@ export class Employee {
     (serviceEmployee) => serviceEmployee.funcionario,
   )
   serviceEmployee: ServiceEmployee[];
+
+  @OneToMany(() => OrderItem, (item) => item.funcionario, { cascade: true })
+  items: OrderItem[];
 }

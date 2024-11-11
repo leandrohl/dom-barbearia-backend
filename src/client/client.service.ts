@@ -4,6 +4,7 @@ import { UpdateClientDto } from './dto/update-client.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Client } from './entities/client.entity';
 import { Repository } from 'typeorm';
+import { clientClassification, verifyLastVisit } from '../utils/classification';
 
 @Injectable()
 export class ClientService {
@@ -31,5 +32,36 @@ export class ClientService {
 
   async remove(id: number) {
     return await this.clientRepository.delete(id);
+  }
+
+  async findAllWithStatistics(): Promise<any[]> {
+    const clients = await this.clientRepository.find({
+      relations: ['comandas', 'comandas.items'],
+    });
+
+    const data = clients.map((client) => {
+      const totalValue = client.comandas.reduce((acc, comanda) => {
+        const valueCommand = comanda.items.reduce(
+          (itemAcc, item) => itemAcc + (item.valor || 0),
+          0,
+        );
+        return acc + valueCommand;
+      }, 0);
+
+      const frequencyVisits = client.comandas.length;
+
+      const lastVisit = verifyLastVisit(client);
+
+      return {
+        id: client.id,
+        nome: client.nome,
+        classificacao: clientClassification(lastVisit),
+        frequenciaVisitas: frequencyVisits,
+        valorGastoTotal: totalValue,
+        ultimaVisita: lastVisit,
+      };
+    });
+
+    return data;
   }
 }

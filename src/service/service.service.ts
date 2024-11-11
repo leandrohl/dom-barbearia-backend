@@ -39,7 +39,22 @@ export class ServiceService {
   }
 
   async findAll(): Promise<Service[]> {
-    return await this.serviceRepository.find();
+    const services = await this.serviceRepository.find();
+
+    const servicesUpdated = await Promise.all(
+      services.map(async (service) => {
+        const serviceEmployees = await this.serviceEmployeeRepository.find({
+          where: { servico: { id: service.id } },
+          relations: ['funcionario'],
+        });
+
+        service.servicoFuncionario = serviceEmployees;
+
+        return service;
+      }),
+    );
+
+    return servicesUpdated;
   }
 
   async findOne(id: number): Promise<Service | null> {

@@ -25,6 +25,11 @@ export class ClientController {
     return this.clientService.findAll();
   }
 
+  @Get('/classification')
+  findAllWithStatistics() {
+    return this.clientService.findAllWithStatistics();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.clientService.findOne(+id);
