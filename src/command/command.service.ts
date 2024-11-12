@@ -8,6 +8,8 @@ import { UpdateCommandDto } from './dto/update-command.dto';
 import { Service } from '../service/entities/service.entity';
 import { Product } from '../product/entities/product.entity';
 import { Employee } from '../employees/entities/employee.entity';
+import { Client } from '../client/entities/client.entity';
+import { clientClassification, verifyLastVisit } from '../utils/classification';
 
 @Injectable()
 export class CommandService {
@@ -17,6 +19,9 @@ export class CommandService {
 
     @InjectRepository(OrderItem)
     private readonly itemsRepository: Repository<OrderItem>,
+
+    @InjectRepository(Client)
+    private readonly clientRepository: Repository<Client>,
   ) {}
 
   findAll(): Promise<Command[]> {
@@ -29,9 +34,13 @@ export class CommandService {
     startDate: string,
     endDate: string,
     employeeId?: string,
-  ): Promise<any[]> {
+  ): Promise<any> {
     const start = new Date(startDate);
     const end = new Date(endDate);
+
+    const clients = await this.clientRepository.find({
+      relations: ['comandas'],
+    });
 
     let commands = await this.commandRepository.find({
       where:
@@ -40,7 +49,13 @@ export class CommandService {
               dataLancamento: Between(start, end),
             }
           : {},
-      relations: ['cliente', 'items', 'items.funcionario'],
+      relations: [
+        'cliente',
+        'items',
+        'items.funcionario',
+        'items.produto',
+        'items.servico',
+      ],
     });
 
     if (employeeId) {
@@ -51,61 +66,62 @@ export class CommandService {
       );
     }
 
-    // const data = employees.map((employee) => {
-    //   let totalBilling = 0;
-    //   let totalCommands = 0;
-    //   const newClients = new Set<any>();
+    const newClients = new Set<any>();
+    const classificationCounts = {
+      Excelente: 0,
+      Otimo: 0,
+      Regular: 0,
+      Ruim: 0,
+    };
+    const countedClients = new Set<number>();
+    let productRevenue = 0;
+    let serviceRevenue = 0;
+    let totalRevenue = 0;
 
-    //   const classificationCounts = {
-    //     Excelente: 0,
-    //     Otimo: 0,
-    //     Regular: 0,
-    //     Ruim: 0,
-    //   };
+    commands.forEach((command) => {
+      const client = command.cliente;
+      const clientFound = clients.find((c) => c.id === client.id);
 
-    //   const countedClients = new Set<number>();
+      const isNewClient = clientFound.comandas.length === 1;
+      if (isNewClient) {
+        newClients.add(client);
+      }
 
-    //   commands.forEach((command) => {
-    //     const hasEmployee = command.items.some(
-    //       (item) => item.funcionario && item.funcionario.id === employee.id,
-    //     );
+      const lastVisit = verifyLastVisit(clientFound);
 
-    //     if (hasEmployee) {
-    //       totalCommands += 1;
-    //       totalBilling += command.items.reduce((sum, item) => {
-    //         return sum + item.valor;
-    //       }, 0);
+      const classification = clientClassification(lastVisit);
 
-    //       const client = command.cliente;
-    //       const clientFound = clients.find((c) => c.id === client.id);
+      if (!countedClients.has(clientFound.id)) {
+        classificationCounts[classification] += 1;
+        countedClients.add(clientFound.id);
+      }
 
-    //       const isNewClient = clientFound.comandas.length === 1;
-    //       if (isNewClient) {
-    //         newClients.add(client);
-    //       }
+      command.items.forEach((item) => {
+        if (item.tipo === 'P') {
+          productRevenue += item.produto.preco * item.quantidade;
+        }
+        if (item.tipo === 'S') {
+          serviceRevenue += item.servico.preco;
+        }
+      });
+    });
 
-    //       const lastVisit = verifyLastVisit(clientFound);
+    const newVsReturningClients = {
+      novos: newClients.size,
+      retorno: clients.length - newClients.size,
+    };
 
-    //       const classification = clientClassification(lastVisit);
+    totalRevenue = productRevenue + serviceRevenue;
 
-    //       if (!countedClients.has(clientFound.id)) {
-    //         classificationCounts[classification] += 1;
-    //         countedClients.add(clientFound.id);
-    //       }
-    //     }
-    //   });
-
-    //   return {
-    //     id: employee.id,
-    //     nome: employee.nome,
-    //     faturamentoTotal: totalBilling,
-    //     totalComandas: totalCommands,
-    //     clientesNovos: newClients.size,
-    //     classificacaoDosClientes: classificationCounts,
-    //   };
-    // });
-
-    return commands;
+    return {
+      novosRetornos: newVsReturningClients,
+      classificacaoDosClientes: classificationCounts,
+      faturamento: {
+        produtos: productRevenue,
+        servicos: serviceRevenue,
+        total: totalRevenue,
+      },
+    };
   }
 
   async findOne(id: number): Promise<Command | null> {
