@@ -34,13 +34,41 @@ export class ClientService {
     return await this.clientRepository.delete(id);
   }
 
-  async findAllWithStatistics(): Promise<any[]> {
+  async findAllWithStatistics(
+    date?: string,
+    employeeId?: string,
+  ): Promise<any[]> {
     const clients = await this.clientRepository.find({
-      relations: ['comandas', 'comandas.items'],
+      relations: ['comandas', 'comandas.items', 'comandas.items.funcionario'],
     });
 
     const data = clients.map((client) => {
-      const totalValue = client.comandas.reduce((acc, comanda) => {
+      let filteredComandas = date
+        ? client.comandas.filter((comanda) => {
+            const comandaDate = new Date(comanda.dataLancamento);
+            const filterDate = new Date(date);
+
+            return (
+              comandaDate.getFullYear() === filterDate.getFullYear() &&
+              comandaDate.getMonth() === filterDate.getMonth() &&
+              comandaDate.getDate() === filterDate.getDate()
+            );
+          })
+        : client.comandas;
+
+      if (employeeId) {
+        filteredComandas = filteredComandas.filter((command) =>
+          command.items.find(
+            (item) => item.funcionario?.id === Number(employeeId),
+          ),
+        );
+      }
+
+      if (filteredComandas.length === 0) {
+        return null;
+      }
+
+      const totalValue = filteredComandas.reduce((acc, comanda) => {
         const valueCommand = comanda.items.reduce(
           (itemAcc, item) => itemAcc + (item.valor || 0),
           0,
@@ -62,6 +90,6 @@ export class ClientService {
       };
     });
 
-    return data;
+    return data.filter((item) => item !== null);
   }
 }

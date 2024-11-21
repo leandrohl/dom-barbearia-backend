@@ -6,6 +6,7 @@ import {
   Put,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
@@ -26,8 +27,11 @@ export class ClientController {
   }
 
   @Get('/classification')
-  findAllWithStatistics() {
-    return this.clientService.findAllWithStatistics();
+  findAllWithStatistics(
+    @Query('date') date?: string,
+    @Query('employeeId') employeeId?: string,
+  ) {
+    return this.clientService.findAllWithStatistics(date, employeeId);
   }
 
   @Get(':id')

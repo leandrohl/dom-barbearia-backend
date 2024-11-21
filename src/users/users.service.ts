@@ -36,4 +36,37 @@ export class UsersService {
     const user = this.usersRepository.create(createUserDto);
     return await this.usersRepository.save(user);
   }
+
+  async savePasswordResetToken(
+    userId: number,
+    resetToken: string,
+    expiryDate: Date,
+  ): Promise<void> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new Error('Usuário não encontrado');
+    }
+
+    user.resetToken = resetToken;
+    user.resetTokenExpiry = expiryDate;
+
+    await this.usersRepository.save(user);
+  }
+
+  async findOneAndDeleteResetToken(resetToken: string): Promise<User> {
+    console.log(resetToken);
+    const user = await this.usersRepository.findOne({
+      where: {
+        resetToken: resetToken,
+      },
+    });
+
+    await this.usersRepository.update(user.id, {
+      resetToken: null,
+      resetTokenExpiry: null,
+    });
+
+    return user;
+  }
 }

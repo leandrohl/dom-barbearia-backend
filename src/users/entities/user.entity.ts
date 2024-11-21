@@ -15,6 +15,12 @@ export class User {
   @Column()
   senha: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  resetToken: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetTokenExpiry: Date | null;
+
   @BeforeInsert()
   hashPassword() {
     this.senha = hashSync(this.senha, 10);
