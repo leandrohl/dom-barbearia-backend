@@ -15,6 +15,9 @@ export class Product {
   @Column()
   quantidade: number;
 
+  @Column()
+  ativo: boolean;
+
   @OneToMany(() => OrderItem, (item) => item.produto, { cascade: true })
   items: OrderItem[];
 }

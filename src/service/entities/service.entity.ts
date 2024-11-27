@@ -13,6 +13,9 @@ export class Service {
   @Column('float')
   preco: number;
 
+  @Column()
+  ativo: boolean;
+
   @OneToMany(
     () => ServiceEmployee,
     (serviceEmployee) => serviceEmployee.servico,

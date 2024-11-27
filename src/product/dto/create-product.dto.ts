@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsPositive } from 'class-validator';
+import { IsBoolean, IsInt, IsNotEmpty, IsPositive } from 'class-validator';
 
 export class CreateProductDto {
   @IsNotEmpty()
@@ -12,4 +12,7 @@ export class CreateProductDto {
   @IsPositive()
   @IsInt()
   quantidade: number;
+
+  @IsBoolean()
+  ativo: boolean;
 }
