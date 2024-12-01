@@ -70,7 +70,11 @@ export class ClientService {
 
       const totalValue = filteredComandas.reduce((acc, comanda) => {
         const valueCommand = comanda.items.reduce(
-          (itemAcc, item) => itemAcc + (item.valor || 0),
+          (itemAcc, item) =>
+            itemAcc +
+            (item.tipo === 'S'
+              ? item.valor || 0
+              : (item.valor || 0) * item.quantidade),
           0,
         );
         return acc + valueCommand;

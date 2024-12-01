@@ -38,6 +38,8 @@ export class CommandService {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
+    end.setDate(end.getDate() + 1);
+
     const clients = await this.clientRepository.find({
       relations: ['comandas'],
     });
@@ -61,7 +63,8 @@ export class CommandService {
     if (employeeId) {
       commands = commands.filter((command) =>
         command.items.find(
-          (item) => item.funcionario.id === Number(employeeId),
+          (item) =>
+            item.tipo === 'S' && item.funcionario.id === Number(employeeId),
         ),
       );
     }
@@ -82,33 +85,34 @@ export class CommandService {
       const client = command.cliente;
       const clientFound = clients.find((c) => c.id === client.id);
 
-      const isNewClient = clientFound.comandas.length === 1;
-      if (isNewClient) {
-        newClients.add(client);
-      }
-
       const lastVisit = verifyLastVisit(clientFound);
 
       const classification = clientClassification(lastVisit);
 
       if (!countedClients.has(clientFound.id)) {
+        const isNewClient = clientFound.comandas.length === 1;
+
+        if (isNewClient) {
+          newClients.add(client);
+        }
+
         classificationCounts[classification] += 1;
         countedClients.add(clientFound.id);
       }
 
       command.items.forEach((item) => {
         if (item.tipo === 'P') {
-          productRevenue += item.produto.preco * item.quantidade;
+          productRevenue += item.valor * item.quantidade;
         }
         if (item.tipo === 'S') {
-          serviceRevenue += item.servico.preco;
+          serviceRevenue += item.valor;
         }
       });
     });
 
     const newVsReturningClients = {
       novos: newClients.size,
-      retorno: clients.length - newClients.size,
+      retorno: countedClients.size - newClients.size,
     };
 
     totalRevenue = productRevenue + serviceRevenue;

@@ -33,9 +33,9 @@ export class CommandController {
     @Query('employeeId') employeeId?: string,
   ) {
     return this.CommandService.findAllWithStatistics(
-      employeeId,
       startDate,
       endDate,
+      employeeId,
     );
   }
 
